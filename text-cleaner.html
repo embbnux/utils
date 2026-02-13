@@ -135,6 +135,10 @@
       color: #ffffff;
     }
 
+    button.destructive {
+      color: #ff3b30;
+    }
+
     footer {
       text-align: center;
       font-size: 12px;
@@ -184,8 +188,9 @@
     </div>
 
     <div class="controls">
-      <button class="primary" onclick="removeEmptyLines()">Clean Text</button>
+      <button class="primary" onclick="removeEmptyLines()">Clean</button>
       <button onclick="copyText()">Copy</button>
+      <button class="destructive" onclick="clearText()">Clear</button>
     </div>
   </main>
 
@@ -226,6 +231,11 @@
         document.execCommand('copy');
         showToast("Copied to clipboard!");
       });
+    }
+
+    function clearText() {
+      textarea.value = '';
+      textarea.focus();
     }
 
     function showToast(message) {
