@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Text Cleaner</title>
+  <style>
+    :root {
+      --bg-color: #f2f2f7;
+      --card-bg: #ffffff;
+      --text-color: #000000;
+      --secondary-text: #8e8e93;
+      --accent-color: #007aff;
+      --border-radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #000000;
+        --card-bg: #1c1c1e;
+        --text-color: #ffffff;
+        --secondary-text: #98989d;
+        --accent-color: #0a84ff;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overscroll-behavior-y: none;
+      /* Prevent bounce effect */
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--secondary-text);
+      margin-top: 8px;
+      margin-bottom: 0;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      /* min-height removed, handled by flex */
+      border: none;
+      background: transparent;
+      color: var(--text-color);
+      font-size: 17px;
+      line-height: 1.5;
+      resize: none;
+      padding: 16px;
+      outline: none;
+      font-family: inherit;
+      flex: 1;
+    }
+
+    textarea::placeholder {
+      color: var(--secondary-text);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    button {
+      flex: 1;
+      background-color: var(--card-bg);
+      color: var(--accent-color);
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      filter: brightness(0.9);
+    }
+
+    button.primary {
+      background-color: var(--accent-color);
+      color: #ffffff;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--secondary-text);
+      margin-top: 20px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 50px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transition: opacity 0.3s, bottom 0.3s;
+    }
+
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Text Cleaner</h1>
+    <p class="subtitle">Clear empty lines from your text</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+    </div>
+
+    <div class="controls">
+      <button class="primary" onclick="removeEmptyLines()">Clean Text</button>
+      <button onclick="copyText()">Copy</button>
+    </div>
+  </main>
+
+  <div id="toast">Text copied to clipboard</div>
+
+  <footer>
+    <p>Simple & Fast • iOS Optimized</p>
+  </footer>
+
+  <script>
+    const textarea = document.getElementById('inputText');
+    const toast = document.getElementById('toast');
+
+    function removeEmptyLines() {
+      let text = textarea.value;
+      // Proposed logic: Replace multiple newlines (possibly with whitespace in between) with a single newline
+      // This effectively removes "empty" lines
+      const cleanedText = text.replace(/\n\s*\n/g, '\n');
+
+      // Also trim leading/trailing empty lines for a cleaner result? 
+      // The user just asked to remove empty lines, let's stick to the core requirement but maybe just trim the whole string
+      textarea.value = cleanedText;
+    }
+
+    function copyText() {
+      if (!textarea.value) return;
+
+      // Select the text field
+      textarea.select();
+      textarea.setSelectionRange(0, 99999); // For mobile devices
+
+      // Copy the text inside the text field
+      navigator.clipboard.writeText(textarea.value).then(function () {
+        showToast("Copied to clipboard!");
+      }).catch(function (err) {
+        console.error('Async: Could not copy text: ', err);
+        // Fallback
+        document.execCommand('copy');
+        showToast("Copied to clipboard!");
+      });
+    }
+
+    function showToast(message) {
+      toast.innerText = message;
+      toast.className = "show";
+      setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // Auto-resize logic if we wanted it, but a fixed card height is cleaner for a simple tool
+  </script>
+</body>
+
+</html>
